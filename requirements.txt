@@ -1,0 +1,7 @@
+rasterio
+shapely
+numpy
+requests
+tqdm
+Pillow
+pyproj

@@ -1,0 +1,4 @@
+_user_meta.json
+__pycache__/
+*.pyc
+.venv/
