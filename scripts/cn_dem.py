@@ -24,7 +24,10 @@
   --strict            只保留中心落在边界内的像元（默认 all_touched）
   --no-fill           合并瓦片时不补洞
   --bg white          预览图用白底（默认透明）
-  --refresh / --clean-cache / --cache <dir> / --workers 4
+  --refresh           重新解析行政边界
+  --clean-cache       仅清空瓦片缓存后退出（不下载，用于腾空间）
+  --cache <dir>       指定瓦片缓存目录（默认 skill 内 _cache/tiles）
+  --workers 16        下载并发连接数
 
 注: 旧版的 --utm / --epsg / --res 投影选项已废弃，传入会被忽略（提示后继续）。
 """
@@ -96,6 +99,17 @@ def main():
     a_opts, rest = split_opts(rest, AREA_OPTS)
     r_opts, rest = split_opts(rest, RESOLVE_OPTS)
     f_opts, rest = split_opts(rest, FETCH_OPTS)
+
+    # 仅清空瓦片缓存（维护操作），不下载、不裁切
+    if "--clean-cache" in f_opts:
+        clean_cmd = [sys.executable, str(HERE / "fetch_cop30.py"), "--clean-cache"]
+        if "--cache" in f_opts:
+            ci = f_opts.index("--cache")
+            clean_cmd += [f_opts[ci], f_opts[ci + 1]]
+        run(clean_cmd)
+        print("\n缓存已清空（仅维护操作，未触发下载）。不带 --clean-cache 重新运行即可下载。")
+        sys.exit(0)
+
     c_opts, rest = split_opts(rest, CLIP_OPTS)
     p_opts, rest = split_opts(rest, PREVIEW_OPTS)
     if rest:
